@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 namespace Exemple.Domain
 {
     [AsChoice]
-    public static partial class ExamGrades
+    public static partial class Carucior
     {
-        public interface IExamGrades { }
+        public interface ICarucior { }
 
-        public record UnvalidatedExamGrades(IReadOnlyCollection<UnvalidatedStudentGrade> GradesList) : IExamGrades;
+        public record EmptyCarucior(IReadOnlyCollection<UnvalidatedProduct> ProductList) : ICarucior;
 
-        public record InvalidatedExamGrades(IReadOnlyCollection<UnvalidatedStudentGrade> GradesList, string reason) : IExamGrades;
+        public record InvalidatedCarucior(IReadOnlyCollection<UnvalidatedProduct> ProductList, string reason) : ICarucior;
 
-        public record ValidatedExamGrades(IReadOnlyCollection<ValidatedStudentGrade> GradesList) : IExamGrades;
+        public record ValidatedCarucior(IReadOnlyCollection<ValidatedProduct> ProductList) : ICarucior;
 
-        public record PublishedExamGrades(IReadOnlyCollection<ValidatedStudentGrade> GradesList, DateTime PublishedDate) : IExamGrades;
+        public record PaidCarucior(IReadOnlyCollection<ValidatedProduct> ProductList, DateTime PublishedDate) : ICarucior;
     }
 }

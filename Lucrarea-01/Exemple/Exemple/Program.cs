@@ -1,7 +1,7 @@
 ﻿using Exemple.Domain;
 using System;
 using System.Collections.Generic;
-using static Exemple.Domain.ExamGrades;
+using static Exemple.Domain.Carucior;
 
 namespace Exemple
 {
@@ -12,31 +12,31 @@ namespace Exemple
         static void Main(string[] args)
         {
             var listOfGrades = ReadListOfGrades().ToArray();
-            UnvalidatedExamGrades unvalidatedGrades = new(listOfGrades);
-            IExamGrades result = ValidateExamGrades(unvalidatedGrades);
+            EmptyCarucior unvalidatedGrades = new(listOfGrades);
+            ICarucior result = ValidateCarucior(unvalidatedGrades);
             result.Match(
-                whenUnvalidatedExamGrades: unvalidatedResult => unvalidatedGrades,
-                whenPublishedExamGrades: publishedResult => publishedResult,
-                whenInvalidatedExamGrades: invalidResult => invalidResult,
-                whenValidatedExamGrades: validatedResult => PublishExamGrades(validatedResult)
+                whenEmptyCarucior: unvalidatedResult => unvalidatedGrades,
+                whenPaidCarucior: publishedResult => publishedResult,
+                whenInvalidatedCarucior: invalidResult => invalidResult,
+                whenValidatedCarucior: validatedResult => PublishCarucior(validatedResult)
             );
 
             Console.WriteLine("Hello World!");
         }
 
-        private static List<UnvalidatedStudentGrade> ReadListOfGrades()
+        private static List<UnvalidatedProduct> ReadListOfGrades()
         {
-            List <UnvalidatedStudentGrade> listOfGrades = new();
+            List <UnvalidatedProduct> listOfGrades = new();
             do
             {
                 //read registration number and grade and create a list of greads
-                var registrationNumber = ReadValue("Registration Number: ");
+                var registrationNumber = ReadValue("Product Code: ");
                 if (string.IsNullOrEmpty(registrationNumber))
                 {
                     break;
                 }
 
-                var grade = ReadValue("Grade: ");
+                var grade = ReadValue("Quantity: ");
                 if (string.IsNullOrEmpty(grade))
                 {
                     break;
@@ -47,13 +47,13 @@ namespace Exemple
             return listOfGrades;
         }
 
-        private static IExamGrades ValidateExamGrades(UnvalidatedExamGrades unvalidatedGrades) =>
+        private static ICarucior ValidateCarucior(EmptyCarucior unvalidatedGrades) =>
             random.Next(100) > 50 ?
-            new InvalidatedExamGrades(new List<UnvalidatedStudentGrade>(), "Random errror")
-            : new ValidatedExamGrades(new List<ValidatedStudentGrade>());
+            new InvalidatedCarucior(new List<UnvalidatedProduct>(), "Random errror")
+            : new ValidatedCarucior(new List<ValidatedProduct>());
 
-        private static IExamGrades PublishExamGrades(ValidatedExamGrades validExamGrades) =>
-            new PublishedExamGrades(new List<ValidatedStudentGrade>(), DateTime.Now);
+        private static ICarucior PublishCarucior(ValidatedCarucior validCarucior) =>
+            new PaidCarucior(new List<ValidatedProduct>(), DateTime.Now);
 
         private static string? ReadValue(string prompt)
         {
