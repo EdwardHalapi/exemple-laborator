@@ -4,21 +4,21 @@ using System.Runtime.Serialization;
 namespace Exemple.Domain
 {
     [Serializable]
-    internal class InvalidGradeException : Exception
+    internal class InvalidQuantityException : Exception
     {
-        public InvalidGradeException()
+        public InvalidQuantityException()
         {
         }
 
-        public InvalidGradeException(string? message) : base(message)
+        public InvalidQuantityException(string? message) : base(message)
         {
         }
 
-        public InvalidGradeException(string? message, Exception? innerException) : base(message, innerException)
+        public InvalidQuantityException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
 
-        protected InvalidGradeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected InvalidQuantityException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

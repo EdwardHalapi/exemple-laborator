@@ -6,26 +6,26 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain
 {
-    public record Grade
+    public record Quantity
     {
         public decimal Value { get; }
 
-        public Grade(decimal value)
+        public Quantity(decimal value)
         {
-            if (value > 0 && value <= 10)
+            if (value > 0 && value <= 1000)
             {
                 Value = value;
             }
             else
             {
-                throw new InvalidGradeException($"{value:0.##} is an invalid grade value.");
+                throw new InvalidQuantityException($"{value:0.##} is an invalid Quantity value.");
             }
         }
 
-        public Grade Round()
+        public Quantity Round()
         {
             var roundedValue = Math.Round(Value);
-            return new Grade(roundedValue);
+            return new Quantity(roundedValue);
         }
 
         public override string ToString()

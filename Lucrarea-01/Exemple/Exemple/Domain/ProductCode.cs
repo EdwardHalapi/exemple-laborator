@@ -9,7 +9,7 @@ namespace Exemple.Domain
 {
     public record ProductCode
     {
-        private static readonly Regex ValidPattern = new("^LM[0-9]{5}$");
+        private static readonly Regex ValidPattern = new("([A-Z])(a*)");
 
         public string Value { get; }
 
@@ -21,7 +21,7 @@ namespace Exemple.Domain
             }
             else
             {
-                throw new InvalidProductCodeException("");
+                throw new InvalidProductCodeException("Wrong Product Code");
             }
         }
 
