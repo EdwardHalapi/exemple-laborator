@@ -31,7 +31,7 @@ namespace Exemple.Domain
                 }
                 if (!ProductCode.TryParse(unvalidatedProduct.cod, out ProductCode code))
                 {
-                    invalidReson = $"Invalid student registration number ({unvalidatedProduct.cod})";
+                    invalidReson = $"Invalid product code ({unvalidatedProduct.cod})";
                     isValidList = false;
                     break;
                 }
