@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading.Tasks;
+using static LanguageExt.Prelude;
+using LanguageExt;
 
 namespace Exemple.Domain.Models
 {
@@ -32,18 +35,16 @@ namespace Exemple.Domain.Models
             return Value;
         }
 
-        public static bool TryParse(string stringValue, out Adresa address)
+        public static Option<Adresa> TryParse(string stringValue)
         {
-            bool isValid = false;
-            address = null;
-
             if (IsValid(stringValue))
             {
-                isValid = true;
-                address = new(stringValue);
+                return Some<Adresa>(new(stringValue));
             }
-
-            return isValid;
+            else
+            {
+                return None;
+            };
         }
     }
 }

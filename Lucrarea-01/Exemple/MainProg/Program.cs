@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using static Exemple.Domain.Models.Carucior;
 using static Exemple.Domain.PriceOperations;
 using Exemple.Domain;
+using System.Threading.Tasks;
+using LanguageExt;
+using static LanguageExt.Prelude;   
 
 namespace MainProgram
 {
@@ -11,13 +14,33 @@ namespace MainProgram
     {
         private static readonly Random random = new Random();
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            var productCode = ProductCode.TryParse("123123ZZ");
+            var productExists = await productCode.Match(
+                Some: prodCOd => CheckProductExists(prodCOd).Match(Succ: value => value, exception => false),
+                None: () => Task.FromResult(false)
+            );
+
+            var resultProdCode = from prodCode in ProductCode.TryParse("123123ZZ")
+                                                    .ToEitherAsync(() => "Invlid product code.")
+                         from exists in CheckProductExists(prodCode)
+                                                    .ToEither(ex =>
+                                                    {
+                                                        Console.Error.WriteLine(ex.ToString());
+                                                        return "Could not validate product code";
+                                                    })
+                         select exists;
+
+            await resultProdCode.Match(
+                 Left: message => Console.WriteLine(message),
+                 Right: flag => Console.WriteLine(flag));
+
             var listOfProducts = ReadListOfProducts().ToArray();
             PublishQuantityCommand command = new(listOfProducts);
-            PublishProductWorkflow workflow = new PublishProductWorkflow();
-            var result = workflow.Execute(command, (productCode) => true);
-
+            PublishProductWorkflow workflow = new();
+            var result = await workflow.ExecuteAsync(command, CheckProductExists);
+           
             result.Match(
                     whenPaidCaruciorFaildEvent: @event =>
                     {
@@ -32,6 +55,19 @@ namespace MainProgram
                 );
 
             Console.WriteLine("Try again later!");
+        }
+        private static TryAsync<bool> CheckProductExists(ProductCode code)
+        {
+            Func<Task<bool>> func = async () =>
+            {
+                bool flag = false;
+                if (code.Value.EndsWith("ZZ"))
+                {
+                    flag = true;
+                }
+                return flag;
+            };
+            return TryAsync(func);
         }
 
         private static List<UnvalidatedProductQuantity> ReadListOfProducts()

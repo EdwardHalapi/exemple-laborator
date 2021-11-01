@@ -1,9 +1,11 @@
-﻿using System;
+﻿using LanguageExt;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace Exemple.Domain.Models
 {
@@ -32,18 +34,16 @@ namespace Exemple.Domain.Models
         {
             return Value;
         }
-        public static bool TryParse(string stringValue, out ProductCode code)
+        public static Option<ProductCode> TryParse(string stringValue)
         {
-            bool isValid = false;
-            code = null;
-
             if (IsValid(stringValue))
             {
-                isValid = true;
-                code = new(stringValue);
+                return Some<ProductCode>(new(stringValue));
             }
-
-            return isValid;
+            else
+            {
+                return None;
+            }
         }
     }
 }

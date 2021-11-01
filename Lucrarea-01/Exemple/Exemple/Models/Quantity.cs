@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using LanguageExt;
+using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 namespace Exemple.Domain.Models
 {
     public record Quantity
@@ -32,20 +34,16 @@ namespace Exemple.Domain.Models
         {
             return $"{Value:0.##}";
         }
-        public static bool TryParseQuantity(string quantityString, out Quantity quantity)
+        public static Option<Quantity> TryParseQuantity(string quantityString)
         {
-            bool isValid = false;
-            quantity = null;
-            if (decimal.TryParse(quantityString, out decimal numericQuantity))
+            if (decimal.TryParse(quantityString, out decimal numericQuantity) && IsValid(numericQuantity))
             {
-                if (IsValid(numericQuantity))
-                {
-                    isValid = true;
-                    quantity = new(numericQuantity);
-                }
+                return Some<Quantity>(new(numericQuantity));
             }
-
-            return isValid;
+            else
+            {
+                return None;
+            }
         }
 
         private static bool IsValid(decimal numericQuantity) => numericQuantity > 0 && numericQuantity <= 1000;

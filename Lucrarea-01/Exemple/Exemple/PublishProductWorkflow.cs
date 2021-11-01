@@ -3,15 +3,17 @@ using static Exemple.Domain.Models.PaidCaruciorEvent;
 using static Exemple.Domain.PriceOperations;
 using System;
 using static Exemple.Domain.Models.Carucior;
+using System.Threading.Tasks;
+using LanguageExt;
 
 namespace Exemple.Domain
 {
     public class PublishProductWorkflow
     {
-        public IPaidCarucioredEvent Execute(PublishQuantityCommand command, Func<ProductCode, bool> checkProductExists)
+        public async Task<IPaidCarucioredEvent> ExecuteAsync(PublishQuantityCommand command, Func<ProductCode,TryAsync<bool>> checkProductExists)
         {
             UnvalidatedProduct unvalidatedGrades = new UnvalidatedProduct(command.inputQuantity);
-            ICarucior products = ValidateProduct(checkProductExists, unvalidatedGrades);
+            ICarucior products = await ValidateProducts(checkProductExists, unvalidatedGrades);
             products = CalculatePrice(products);
             products = PaidCarucior(products);
 

@@ -1,54 +1,65 @@
 ﻿using Exemple.Domain.Models;
+using LanguageExt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Exemple.Domain.Models.Carucior;
+using static LanguageExt.Prelude;
 
 namespace Exemple.Domain
 {
     public static class PriceOperations
     {
-        public static ICarucior ValidateProduct(Func<ProductCode, bool> checkProductExists, UnvalidatedProduct product)
-        {
-            List<ValidatedProduct> validatedProduct = new();
-            bool isValidList = true;
-            string invalidReson = string.Empty;
-            foreach (var unvalidatedProduct in product.ProductList)
+        public static Task<ICarucior> ValidateProducts(Func<ProductCode, TryAsync<bool>> checkProductExists, UnvalidatedProduct product)=>
+
+            product.ProductList
+                      .Select(ValidateProduct(checkProductExists))
+                      .Aggregate(CreateEmptyValatedQuantitysList().ToAsync(), ReduceValidQuantitys)
+                      .MatchAsync(
+                            Right: validatedProducts => new ValidatedCarucior(validatedProducts),
+                            LeftAsync: errorMessage => Task.FromResult((ICarucior)new InvalidatedCarucior(product.ProductList, errorMessage))
+                      );
+
+        private static Func<UnvalidatedProductQuantity, EitherAsync<string, ValidatedProduct>> ValidateProduct(Func<ProductCode, TryAsync<bool>> checkProductExists) =>
+                unValidatedProduct => ValidateProduct(checkProductExists, unValidatedProduct);
+
+            private static EitherAsync<string, ValidatedProduct> ValidateProduct(Func<ProductCode, TryAsync<bool>> checkProductExists, UnvalidatedProductQuantity product) =>
+                from quantity in Quantity.TryParseQuantity(product.quantity)
+                                       .ToEitherAsync(() => $"Invalid  Quantity ({product.cod}, {product.quantity})")
+                from productCod in ProductCode.TryParse(product.cod)
+                                       .ToEitherAsync(() => $"Invalid product code ({product.cod})")
+                from clientAddress in Adresa.TryParse(product.address)
+                                       .ToEitherAsync(() => $"Invalid client address ({product.address})")
+                from prodExists in checkProductExists(productCod)
+                                       .ToEither(error => error.ToString())
+                select new ValidatedProduct(productCod, quantity, clientAddress);
+
+            private static Either<string, List<ValidatedProduct>> CreateEmptyValatedQuantitysList() =>
+                Right(new List<ValidatedProduct>());
+
+            private static EitherAsync<string, List<ValidatedProduct>> ReduceValidQuantitys(EitherAsync<string, List<ValidatedProduct>> acc, EitherAsync<string, ValidatedProduct> next) =>
+                from list in acc
+                from nextQuantity in next
+                select list.AppendValidQuantity(nextQuantity);
+
+            private static List<ValidatedProduct> AppendValidQuantity(this List<ValidatedProduct> list, ValidatedProduct validQuantity)
             {
-                if (!Quantity.TryParseQuantity(unvalidatedProduct.quantity, out Quantity quantity))
-                {
-                    invalidReson = $"Invalid product quantity ({unvalidatedProduct.cod}, {unvalidatedProduct.quantity})";
-                    isValidList = false;
-                    break;
-                }
-                if (!Adresa.TryParse(unvalidatedProduct.address, out Adresa adress))
-                {
-                    invalidReson = $"Invalid address ({unvalidatedProduct.cod}, {unvalidatedProduct.address})";
-                    isValidList = false;
-                    break;
-                }
-                if (!ProductCode.TryParse(unvalidatedProduct.cod, out ProductCode code))
-                {
-                    invalidReson = $"Invalid product code ({unvalidatedProduct.cod})";
-                    isValidList = false;
-                    break;
-                }
-                ValidatedProduct validProduct = new(code, quantity, adress);
-                validatedProduct.Add(validProduct);
+                list.Add(validQuantity);
+                return list;
             }
 
-            if (isValidList)
-            {
-                return new ValidatedCarucior(validatedProduct);
-            }
-            else
-            {
-                return new InvalidatedCarucior(product.ProductList, invalidReson);
-            }
+            //if (isValidList)
+            //{
+            //    return new ValidatedCarucior(validatedProduct);
+            //}
+            //else
+            //{
+            //    return new InvalidatedCarucior(product.ProductList, invalidReson);
+            //}
 
-        }
+        
 
         public static ICarucior CalculatePrice(ICarucior products) => products.Match(
             whenUnvalidatedProduct: unvalidaTedProduct => unvalidaTedProduct,
@@ -73,9 +84,9 @@ namespace Exemple.Domain
             whenPaidCarucior: paidCarucior => paidCarucior,
             whenValidatedCarucior: validProduct =>
             {
-                PaidCarucior publishedExamGrades = new(validProduct.ProductList, DateTime.Now);
+                PaidCarucior publishedproduct = new(validProduct.ProductList, DateTime.Now);
 
-                return publishedExamGrades;
+                return publishedproduct;
             });
     }
 }
