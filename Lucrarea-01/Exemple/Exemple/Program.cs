@@ -29,7 +29,6 @@ namespace Exemple
             List <UnvalidatedProduct> listOfGrades = new();
             do
             {
-                //read registration number and grade and create a list of greads
                 var registrationNumber = ReadValue("Product Code: ");
                 if (string.IsNullOrEmpty(registrationNumber))
                 {
