@@ -61,7 +61,7 @@ namespace MainProgram
             Func<Task<bool>> func = async () =>
             {
                 bool flag = false;
-                if(code != null)
+                if(code.Value != null)
                 {
 
                     if (code.Value.EndsWith("ZZ"))
