@@ -47,8 +47,8 @@ namespace MainProgram
                                               .UseSqlServer(ConnectionString)
                                               .UseLoggerFactory(loggerFactory);
             OrderContext orderContext = new OrderContext(dbContextBuilder.Options);
-            ProductRepository studentsRepository = new(orderContext);
-            OrderRepository gradesRepository = new(orderContext);
+            ProductRepository productsRepository = new(orderContext);
+            OrderRepository orderRepository = new(orderContext);
             var listOfProducts = ReadListOfProducts().ToArray();
             PublishQuantityCommand command = new(listOfProducts);
             PublishProductWorkflow workflow = new();
