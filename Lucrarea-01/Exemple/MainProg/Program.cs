@@ -16,13 +16,13 @@ namespace MainProgram
 
         static async Task Main(string[] args)
         {
-            var productCode = ProductCode.TryParse("123123ZZ");
+            var productCode = ProductCode.TryParse("1A2B3C5556789");
             var productExists = await productCode.Match(
                 Some: prodCOd => CheckProductExists(prodCOd).Match(Succ: value => value, exception => false),
                 None: () => Task.FromResult(false)
             );
 
-            var resultProdCode = from prodCode in ProductCode.TryParse("123123ZZ")
+            var resultProdCode = from prodCode in ProductCode.TryParse("1A2B3C5556789")
                                                     .ToEitherAsync(() => "Invlid product code.")
                          from exists in CheckProductExists(prodCode)
                                                     .ToEither(ex =>
@@ -64,7 +64,7 @@ namespace MainProgram
                 if(code.Value != null)
                 {
 
-                    if (code.Value.EndsWith("ZZ"))
+                    if (code.Value.StartsWith("1A2B3C"))
                     {
                         flag = true;
                     }

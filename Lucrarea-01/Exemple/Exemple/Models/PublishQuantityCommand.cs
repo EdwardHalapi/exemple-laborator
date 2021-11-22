@@ -10,7 +10,7 @@ namespace Exemple.Domain.Models
     {
         public PublishQuantityCommand(IReadOnlyCollection<UnvalidatedProductQuantity> inputQuantity)
         {
-            inputQuantity = inputQuantity;
+            inputQuantity = this.inputQuantity;
         }
 
         public IReadOnlyCollection<UnvalidatedProductQuantity> inputQuantity { get; }
