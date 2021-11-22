@@ -49,6 +49,13 @@ namespace Exemple.Domain.Models
         }
         public record PaidCarucior : ICarucior
         {
+            private int orderId;
+
+            public PaidCarucior(int orderId)
+            {
+                this.orderId = orderId;
+            }
+
             internal PaidCarucior(IReadOnlyCollection<ValidatedProduct> productList, DateTime publishedDate)
             {
                 productList = ProductList;

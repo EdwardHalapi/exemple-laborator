@@ -12,10 +12,11 @@ namespace Exemple.Domain.Models
     public record ProductCode
     {
         private static readonly Regex ValidPattern = new("([A-Z])(a*)");
+        private object code;
 
         public string Value { get; }
 
-        private ProductCode(string value)
+        internal ProductCode(string value)
         {
             if (ValidPattern.IsMatch(value))
             {
@@ -29,6 +30,12 @@ namespace Exemple.Domain.Models
                 throw new InvalidProductCodeException("Wrong Product Code");
             }
         }
+
+        public ProductCode(object code)
+        {
+            this.code = code;
+        }
+
         private static bool IsValid(string stringValue) => ValidPattern.IsMatch(stringValue);
         public override string ToString()
         {

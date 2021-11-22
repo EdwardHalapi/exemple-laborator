@@ -12,7 +12,7 @@ namespace Exemple.Domain.Models
     {
         public decimal Value { get; }
 
-        public Quantity(decimal value)
+        internal Quantity(decimal value)
         {
             if (IsValid(value))
             {

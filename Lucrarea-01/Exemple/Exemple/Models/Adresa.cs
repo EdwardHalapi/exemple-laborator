@@ -28,6 +28,10 @@ namespace Exemple.Domain.Models
             }
         }
 
+        public Adresa(object p)
+        {
+        }
+
         private static bool IsValid(string stringValue) => ValidPattern.IsMatch(stringValue);
 
         public override string ToString()

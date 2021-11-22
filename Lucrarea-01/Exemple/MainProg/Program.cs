@@ -6,16 +6,24 @@ using static Exemple.Domain.PriceOperations;
 using Exemple.Domain;
 using System.Threading.Tasks;
 using LanguageExt;
-using static LanguageExt.Prelude;   
+using static LanguageExt.Prelude;
+using System.Net.Http;
+using Exemple.Data.Repositories;
+using Exemple.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MainProgram
 {
     class Program
     {
         private static readonly Random random = new Random();
+        private static string ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=C:\\PSSC LAB\\EXEMPLE-LABORATOR\\LUCRAREA-01\\EXEMPLE\\MAINPROG\\DATABASE1.MDF;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
         static async Task Main(string[] args)
         {
+            using ILoggerFactory loggerFactory = ConfigureLoggerFactory();
+            ILogger<PublishProductWorkflow> logger = loggerFactory.CreateLogger<PublishProductWorkflow>();
             var productCode = ProductCode.TryParse("1A2B3C5556789");
             var productExists = await productCode.Match(
                 Some: prodCOd => CheckProductExists(prodCOd).Match(Succ: value => value, exception => false),
@@ -35,7 +43,12 @@ namespace MainProgram
             await resultProdCode.Match(
                  Left: message => Console.WriteLine(message),
                  Right: flag => Console.WriteLine(flag));
-
+            var dbContextBuilder = new DbContextOptionsBuilder<OrderContext>()
+                                              .UseSqlServer(ConnectionString)
+                                              .UseLoggerFactory(loggerFactory);
+            OrderContext orderContext = new OrderContext(dbContextBuilder.Options);
+            ProductRepository studentsRepository = new(orderContext);
+            OrderRepository gradesRepository = new(orderContext);
             var listOfProducts = ReadListOfProducts().ToArray();
             PublishQuantityCommand command = new(listOfProducts);
             PublishProductWorkflow workflow = new();
@@ -55,6 +68,17 @@ namespace MainProgram
                 );
 
             Console.WriteLine("Try again later!");
+        }
+        private static ILoggerFactory ConfigureLoggerFactory()
+        {
+            return LoggerFactory.Create(builder =>
+                                builder.AddSimpleConsole(options =>
+                                {
+                                    options.IncludeScopes = true;
+                                    options.SingleLine = true;
+                                    options.TimestampFormat = "hh:mm:ss ";
+                                })
+                                .AddProvider(new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider()));
         }
         private static TryAsync<bool> CheckProductExists(ProductCode code)
         {

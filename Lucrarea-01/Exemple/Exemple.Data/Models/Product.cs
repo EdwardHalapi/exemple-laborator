@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Exemple.Domain.Models
+namespace Exemple.Data.Models
 {
-    public record CalculatedPrice(ProductCode ProductCode, Quantity Quantity,Quantity price)
+    public class Product
     {
         public int ProductId { get; set; }
-        public bool IsUpdated { get; set; }
+        public string Code { get; set; }
+        public string Stoc { get; set; }
     }
 }

@@ -71,7 +71,6 @@ namespace Exemple.Domain
                 var calculatedPrice = validProduct.ProductList.Select(validProduct =>
                                                   new CalculatedPrice(validProduct.ProductCode,
                                                                       validProduct.Quantity,
-                                                                      validProduct.address,
                                                                       validProduct.Quantity));
                 return new CalculatePrice(calculatedPrice.ToList().AsReadOnly());
             }
