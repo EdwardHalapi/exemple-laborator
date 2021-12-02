@@ -38,9 +38,9 @@ namespace Exemple.Domain
                          from _ in orderRepository.TrySaveproduct(publishedProduct)
                                           .ToEither(ex => new FailedCalculatedPrice(unvalidatedProducts.ProductList, ex) as ICarucior)
                          select publishedProduct;
-
+         
             return await result.Match(
-                    Left: products => GenerateFailedEvent(products) as IPaidCarucioredEvent,
+                    Left: products => (),//GenerateFailedEvent(products) as IPaidCarucioredEvent,
                     Right: publishedProds => new PaidCarucior(publishedProds.ProductList, publishedProds.PublishedDate)
                 );
         }
