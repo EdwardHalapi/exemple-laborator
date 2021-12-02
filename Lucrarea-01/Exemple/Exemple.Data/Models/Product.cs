@@ -10,6 +10,6 @@ namespace Exemple.Data.Models
     {
         public int ProductId { get; set; }
         public string Code { get; set; }
-        public string Stoc { get; set; }
+        public decimal Stoc { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Example.Data.Models;
-using Exemple.Data.Models;
+﻿using Exemple.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -22,8 +21,8 @@ namespace Exemple.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Product>().("Product").HasKey(s => s.ProductId);
-            //modelBuilder.Entity<Order>().ToTable("Order").HasKey(s => s.OrderId);
+            modelBuilder.Entity<Product>().ToTable("Product").HasKey(s => s.ProductId);
+            modelBuilder.Entity<Order>().ToTable("Order").HasKey(s => s.OrderId);
         }
     }
 }

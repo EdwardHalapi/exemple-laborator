@@ -1,39 +1,26 @@
 ﻿using LanguageExt;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace Exemple.Domain.Models
 {
     public record ProductCode
     {
-        private static readonly Regex ValidPattern = new("([A-Z])(a*)");
-        private object code;
+        public const string Pattern = "([A-Z])(a*)";
+        private static readonly Regex ValidPattern = new(Pattern);
 
         public string Value { get; }
 
-        internal ProductCode(string value)
+        public ProductCode(string value)
         {
-            if (ValidPattern.IsMatch(value))
+            if (IsValid(value))
             {
-                if(value.Length <= 5)
-                {
-                    Value = value;
-                } 
+                Value = value;
             }
             else
             {
                 throw new InvalidProductCodeException("Wrong Product Code");
             }
-        }
-
-        public ProductCode(object code)
-        {
-            this.code = code;
         }
 
         private static bool IsValid(string stringValue) => ValidPattern.IsMatch(stringValue);

@@ -1,4 +1,5 @@
 ﻿using CSharp.Choices;
+using LanguageExt.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,13 +40,25 @@ namespace Exemple.Domain.Models
             }
             public IReadOnlyCollection<ValidatedProduct> ProductList { get; }
         }
-        public record CalculatePrice : ICarucior
+        public record CalculatedPrice : ICarucior
         {
-            internal CalculatePrice(IReadOnlyCollection<CalculatedPrice> productlist)
+            internal CalculatedPrice(IReadOnlyCollection<CalculatedCustomerPrice> productlist)
             {
                 productlist = ProductList;
             }
-            public IReadOnlyCollection<CalculatedPrice> ProductList { get; }
+            public IReadOnlyCollection<CalculatedCustomerPrice> ProductList { get; }
+        }
+        public record FailedCalculatedPrice : ICarucior
+        {
+
+            internal FailedCalculatedPrice(IReadOnlyCollection<UnvalidatedProductQuantity> productList, Exception exception)
+            {
+                ProductList = productList;
+                Exception = exception;
+            }
+
+            public IReadOnlyCollection<UnvalidatedProductQuantity> ProductList { get; }
+            public Exception Exception { get; }
         }
         public record PaidCarucior : ICarucior
         {
@@ -56,12 +69,12 @@ namespace Exemple.Domain.Models
                 this.orderId = orderId;
             }
 
-            internal PaidCarucior(IReadOnlyCollection<ValidatedProduct> productList, DateTime publishedDate)
+            internal PaidCarucior(IReadOnlyCollection<CalculatedCustomerPrice> productList, DateTime publishedDate)
             {
                 productList = ProductList;
                 publishedDate = PublishedDate;
             }
-            public IReadOnlyCollection<ValidatedProduct> ProductList { get; }
+            public IReadOnlyCollection<CalculatedCustomerPrice> ProductList { get; }
             public DateTime PublishedDate { get; }
         }
     }

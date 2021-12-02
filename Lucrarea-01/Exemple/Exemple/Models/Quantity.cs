@@ -12,7 +12,7 @@ namespace Exemple.Domain.Models
     {
         public decimal Value { get; }
 
-        internal Quantity(decimal value)
+        public Quantity(decimal value)
         {
             if (IsValid(value))
             {
@@ -33,6 +33,17 @@ namespace Exemple.Domain.Models
         public override string ToString()
         {
             return $"{Value:0.##}";
+        }
+        public static Option<Quantity> TryParseQuantity(decimal numericQuantity)
+        {
+            if (IsValid(numericQuantity))
+            {
+                return Some<Quantity>(new(numericQuantity));
+            }
+            else
+            {
+                return None;
+            }
         }
         public static Option<Quantity> TryParseQuantity(string quantityString)
         {

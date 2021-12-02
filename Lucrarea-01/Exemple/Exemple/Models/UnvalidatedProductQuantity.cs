@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain.Models
 {
-    public record UnvalidatedProductQuantity(string cod, string quantity, string address);
+    public record UnvalidatedProductQuantity(string cod, decimal quantity, string address);
 }

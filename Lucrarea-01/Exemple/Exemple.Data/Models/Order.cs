@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Example.Data.Models
+namespace Exemple.Data.Models
 {
     public class Order
     {

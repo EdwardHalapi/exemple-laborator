@@ -1,18 +1,19 @@
 ﻿using Exemple.Domain.Models;
 using LanguageExt;
+using static LanguageExt.Prelude;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Exemple.Domain.Models.Carucior;
-using static LanguageExt.Prelude;
+
 
 namespace Exemple.Domain
 {
     public static class PriceOperations
     {
-        public static Task<ICarucior> ValidateProducts(Func<ProductCode, TryAsync<bool>> checkProductExists, UnvalidatedProduct product)=>
+        public static Task<ICarucior> ValidateProducts(Func<ProductCode, Option<ProductCode>> checkProductExists, UnvalidatedProduct product)=>
 
             product.ProductList
                       .Select(ValidateProduct(checkProductExists))
@@ -22,10 +23,10 @@ namespace Exemple.Domain
                             LeftAsync: errorMessage => Task.FromResult((ICarucior)new InvalidatedCarucior(product.ProductList, errorMessage))
                       );
 
-        private static Func<UnvalidatedProductQuantity, EitherAsync<string, ValidatedProduct>> ValidateProduct(Func<ProductCode, TryAsync<bool>> checkProductExists) =>
+        private static Func<UnvalidatedProductQuantity, EitherAsync<string, ValidatedProduct>> ValidateProduct(Func<ProductCode, Option<ProductCode>> checkProductExists) =>
                 unValidatedProduct => ValidateProduct(checkProductExists, unValidatedProduct);
 
-            private static EitherAsync<string, ValidatedProduct> ValidateProduct(Func<ProductCode, TryAsync<bool>> checkProductExists, UnvalidatedProductQuantity product) =>
+            private static EitherAsync<string, ValidatedProduct> ValidateProduct(Func<ProductCode, Option<ProductCode>> checkProductExists, UnvalidatedProductQuantity product) =>
                 from quantity in Quantity.TryParseQuantity(product.quantity)
                                        .ToEitherAsync(() => $"Invalid  Quantity ({product.cod}, {product.quantity})")
                 from productCod in ProductCode.TryParse(product.cod)
@@ -33,7 +34,7 @@ namespace Exemple.Domain
                 from clientAddress in Adresa.TryParse(product.address)
                                        .ToEitherAsync(() => $"Invalid client address ({product.address})")
                 from prodExists in checkProductExists(productCod)
-                                       .ToEither(error => error.ToString())
+                                       .ToEitherAsync($"Student {productCod.Value} does not exist.")
                 select new ValidatedProduct(productCod, quantity, clientAddress);
 
             private static Either<string, List<ValidatedProduct>> CreateEmptyValatedQuantitysList() =>
@@ -50,42 +51,40 @@ namespace Exemple.Domain
                 return list;
             }
 
-            //if (isValidList)
-            //{
-            //    return new ValidatedCarucior(validatedProduct);
-            //}
-            //else
-            //{
-            //    return new InvalidatedCarucior(product.ProductList, invalidReson);
-            //}
+        public static ICarucior CalculateFinalFinalQuantitys(ICarucior products) => products.Match(
+           whenUnvalidatedProduct: unvalidatedProduct => unvalidatedProduct,
+           whenInvalidatedCarucior: invalidatedCarucior => invalidatedCarucior,
+           whenFailedCalculatedPrice: failCalculatePrice => failCalculatePrice,
+           whenCalculatedPrice: calculatedPrice => calculatedPrice,
+           whenPaidCarucior: paidCarucior => paidCarucior,
+           whenValidatedCarucior: CalculateFinalQuantity
+       );
+       private static ICarucior CalculateFinalQuantity(ValidatedCarucior product)=>
+         new CalculatedPrice(product.ProductList
+                                    .Select(CalculatedCustomerFinalPrice)
+                                    .ToList()
+                                    .AsReadOnly());
+        private static CalculatedCustomerPrice CalculatedCustomerFinalPrice(ValidatedProduct prod) =>
+            new CalculatedCustomerPrice(prod.ProductCode,
+                                        prod.Quantity,
+                                        prod.Quantity);
 
-        
-
-        public static ICarucior CalculatePrice(ICarucior products) => products.Match(
-            whenUnvalidatedProduct: unvalidaTedProduct => unvalidaTedProduct,
-            whenInvalidatedCarucior: invalidProduct => invalidProduct,
-            whenCalculatePrice: calculatedPrice => calculatedPrice,
+        public static ICarucior MergePrices(ICarucior products, IEnumerable<CalculatedCustomerPrice> existingPrices) => products.Match(
+            whenUnvalidatedProduct: unvalidatedProduct => unvalidatedProduct,
+            whenInvalidatedCarucior: invalidatedCarucior => invalidatedCarucior,
+            whenFailedCalculatedPrice: failCalculatePrice => failCalculatePrice,
             whenPaidCarucior: paidCarucior => paidCarucior,
-            whenValidatedCarucior: validProduct =>
-            {
-                var calculatedPrice = validProduct.ProductList.Select(validProduct =>
-                                                  new CalculatedPrice(validProduct.ProductCode,
-                                                                      validProduct.Quantity,
-                                                                      validProduct.Quantity));
-                return new CalculatePrice(calculatedPrice.ToList().AsReadOnly());
-            }
-        );
+            whenValidatedCarucior: validatedCarucior => validatedCarucior,
+            whenCalculatedPrice: calculatedPrice => MergePrices(calculatedPrice.ProductList, existingPrices));
 
-        public static ICarucior PaidCarucior(ICarucior products) => products.Match(
-            whenUnvalidatedProduct: unvalidaTedProduct => unvalidaTedProduct,
-            whenInvalidatedCarucior: invalidProduct => invalidProduct,
-            whenCalculatePrice: calculatedPrice => calculatedPrice,
-            whenPaidCarucior: paidCarucior => paidCarucior,
-            whenValidatedCarucior: validProduct =>
-            {
-                PaidCarucior publishedproduct = new(validProduct.ProductList, DateTime.Now);
-
-                return publishedproduct;
-            });
+        private static CalculatedPrice MergePrices(IEnumerable<CalculatedCustomerPrice> newList, IEnumerable<CalculatedCustomerPrice> existingList)
+        {
+           var updatedAndNewPrices = newList.Select(price => price with { ProductId = existingList.FirstOrDefault(p => p.ProductCode == price.ProductCode)?.ProductId ?? 0, IsUpdated = true });
+            var oldPrices = existingList.Where(price => !newList.Any(p => p.ProductCode == price.ProductCode));
+            var allPrices = updatedAndNewPrices.Union(oldPrices)
+                .ToList()
+                .AsReadOnly();
+                return new CalculatedPrice(allPrices);
+        }
     }
 }

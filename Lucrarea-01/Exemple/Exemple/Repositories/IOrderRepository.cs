@@ -11,7 +11,7 @@ namespace Exemple.Domain.Repositories
 {
     public interface IOrderRepository
     {
-        TryAsync<List<CalculatedPrice>> TryGetExistingProduct();
+        TryAsync<List<CalculatedCustomerPrice>> TryGetExistingProduct();
 
         TryAsync<Unit> TrySaveproduct(PaidCarucior total);
     }
