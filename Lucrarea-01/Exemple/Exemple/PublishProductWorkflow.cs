@@ -40,8 +40,8 @@ namespace Exemple.Domain
                          select publishedProduct;
          
             return await result.Match(
-                    Left: products => (),//GenerateFailedEvent(products) as IPaidCarucioredEvent,
-                    Right: publishedProds => new PaidCarucior(publishedProds.ProductList, publishedProds.PublishedDate)
+                    Left: products => GenerateFailedEvent(products) as IPaidCarucioredEvent,
+                    Right: publishedProds => new PaidCaruciorScucceededEvent(DateTime.Now)
                 );
         }
         private async Task<Either<ICarucior, PaidCarucior>> ExecuteWorkflowAsync(UnvalidatedProduct unvalidatedProducts,
