@@ -11,7 +11,7 @@ namespace Exemple.Domain.Models
     [AsChoice]
     public static partial class Carucior
     {
-        public interface ICarucior { }
+        public interface ICarucior {}
 
         public record UnvalidatedProduct : ICarucior
         {
