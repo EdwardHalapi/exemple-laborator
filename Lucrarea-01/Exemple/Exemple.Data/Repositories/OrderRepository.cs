@@ -19,58 +19,14 @@ namespace Exemple.Data.Repositories
             this.dbContext = dbContext;
         }
 
-        public TryAsync<List<CalculatedCustomerPrice>> TryGetExistingProduct() => async () => (await (
-                          from g in dbContext.OrderHeader
-                          join s in dbContext.Products on g.ProductIdId equals s.ProductId
-                          select new { s.Code, g.OrderId, g.Total, g.Address })
-                          .AsNoTracking()
-                          .ToListAsync())
-                          .Select(result => new CalculatedCustomerPrice(ProductCode: new(result.Code),
-                                                                            Quantity: new(result.Total ?? 0m),
-                                                                            price: new(result.Total ?? 0m))
-                          {
-                              ProductId = result.OrderId
-                          }).ToList();
-
-        public TryAsync<Unit> TrySaveProducts(PaidCarucior total) => async () =>
+        public TryAsync<List<ProductCode>> TryGetExistingCarucior(IEnumerable<string> productToCheck) => async () =>
         {
-            var products = (await dbContext.Products.ToListAsync()).ToLookup(product => product.Code);
-            var newProducts = total.ProductList
-                                    .Where(p => p.IsUpdated && p.ProductId == 0)
-                                    .Select(p => new Product()
-                                    {
-                                        ProductId = products[p.ProductCode.Value].Single().ProductId,
-                                        Code = p.ProductCode.Value,
-                                        Stoc = p.Quantity.Value,
-                                    });
-            var updatedGrades = total.ProductList
-                                    .Where(p => p.IsUpdated && p.ProductId >0)
-                                    .Select(p => new Product()
-                                    {
-                                        ProductId = products[p.ProductCode.Value].Single().ProductId,
-                                        Code = p.ProductCode.Value,
-                                        Stoc = p.Quantity.Value,
-                                    });
-
-            dbContext.AddRange(newProducts);
-            foreach (var entity in updatedGrades)
-            {
-                dbContext.Entry(entity).State = EntityState.Modified;
-            }
-
-            await dbContext.SaveChangesAsync();
-
-            return unit;
+            var products = await dbContext.Products
+                                              .Where(product => productToCheck.Contains(product.Code))
+                                              .AsNoTracking()
+                                              .ToListAsync();
+            return products.Select(product => new ProductCode(product.Code))
+                           .ToList();
         };
-
-        public TryAsync<Unit> TrySaveproduct(PaidCarucior total)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        TryAsync<List<CalculatedCustomerPrice>> IOrderRepository.TryGetExistingProduct()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

@@ -36,7 +36,7 @@ namespace Example.Api
 
             services.AddAzureClients(builder =>
             {
-                builder.AddServiceBusClient(Configuration.GetConnectionString("Endpoint=sb://test-sb-pssc.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SQXU7PIAOxtFzq5A6aNVYnppYHdeqGvD2VYedP+qYbg="));
+                builder.AddServiceBusClient(Configuration.GetConnectionString("ServiceBuss"));
             });
 
             services.AddControllers();

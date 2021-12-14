@@ -2,10 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Exemple.Domain;
 using Exemple.Domain.Repositories;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System;
@@ -26,8 +24,8 @@ namespace Example.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts([FromServices] IOrderRepository orderRepository) =>
-            await orderRepository.TryGetExistingProduct().Match(
+        public async Task<IActionResult> GetAllProducts([FromServices] IOrderLineRepository orderLineRepository) =>
+            await orderLineRepository.TryGetExistingProduct().Match(
                Succ: GetAllProductsHandleSuccess,
                Fail: GetAllProductsHandleError
             );
@@ -49,6 +47,19 @@ namespace Example.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> PaidProducts([FromServices] PublishProductWorkflow publishProductWorkflow, [FromBody] InputProduct[] products)
         {
+            var unvalidatedProducts = products.Select(MapInputProductToValidateddProduct)
+                                          .ToList()
+                                          .AsReadOnly();
+            PublishQuantityCommand command = new(unvalidatedProducts);
+            var result = await publishProductWorkflow.ExecuteAsync(command);
+            return result.Match<IActionResult>(
+                whenPaidCaruciorFaildEvent: failedEvent => StatusCode(StatusCodes.Status500InternalServerError, failedEvent.Reason),
+                whenPaidCaruciorScucceededEvent: successEvent => Ok()
+            );
+        }
+        [HttpPost]
+        public async Task<IActionResult> PlaceItemToOrder([FromServices] PublishProductWorkflow publishProductWorkflow, [FromBody] InputOrderLine[] products)
+        {
             var unvalidatedProducts = products.Select(MapInputProductToUnvalidatedProduct)
                                           .ToList()
                                           .AsReadOnly();
@@ -59,10 +70,13 @@ namespace Example.Api.Controllers
                 whenPaidCaruciorScucceededEvent: successEvent => Ok()
             );
         }
-
-        private static UnvalidatedProductQuantity MapInputProductToUnvalidatedProduct(InputProduct product) => new UnvalidatedProductQuantity(
-            cod: product.ProductCodeId,
+        private static UnvalidatedProductQuantity MapInputProductToUnvalidatedProduct(InputOrderLine product) => new UnvalidatedProductQuantity(
+            cod: product.OrderLineId,
             quantity: product.Quantity,
-            address: product.Address);
+            address: product.Price);
+        private static UnvalidatedProductQuantity MapInputProductToValidateddProduct(InputProduct product) => new UnvalidatedProductQuantity(
+             cod: product.Code,
+            quantity: product.Stoc,
+            address: product.ProductCodeId.ToString());
     }
 }

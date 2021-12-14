@@ -5,16 +5,16 @@ using Exemple.Domain.Models;
 
 namespace Example.Api.Models
 {
-    public class InputProduct
+    public class InputOrderLine
     {
         [Required]
-        public int ProductCodeId { get; set; }
+        public string OrderLineId { get; set; }
 
         [Required]
-        [RegularExpression(ProductCode.Pattern)]
-        public string Code { get; set; }
+        [Range(1, 1000)]
+        public decimal Quantity { get; set; }
 
         [Required]
-        public int  Stoc { get; set; }
+        public string Price { get; set; }
     }
 }

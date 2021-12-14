@@ -17,10 +17,12 @@ namespace Exemple.Domain
     {
         private readonly IOrderRepository orderRepository;
         private readonly IProductRepository productRepository;
+        private readonly IOrderLineRepository orderLineRepository;
         private readonly ILogger<PublishProductWorkflow> logger;
-        public PublishProductWorkflow(IOrderRepository orderRepository, IProductRepository productRepository, ILogger<PublishProductWorkflow> logger)
+        public PublishProductWorkflow(IOrderRepository orderRepository, IOrderLineRepository orderLineRepository, IProductRepository productRepository,ILogger<PublishProductWorkflow> logger)
         {
             this.orderRepository = orderRepository;
+            this.orderLineRepository = orderLineRepository;
             this.productRepository = productRepository;
             this.logger = logger;
         }
@@ -31,11 +33,11 @@ namespace Exemple.Domain
 
             var result = from products in productRepository.TryGetExistingProduct(unvalidatedProducts.ProductList.Select(prod => prod.cod))
                                            .ToEither(ex => new FailedCalculatedPrice(unvalidatedProducts.ProductList, ex) as ICarucior)
-                         from existingProd in orderRepository.TryGetExistingProduct()
+                         from existingProd in orderLineRepository.TryGetExistingProduct()
                                           .ToEither(ex => new FailedCalculatedPrice(unvalidatedProducts.ProductList, ex) as ICarucior)
                          let checkProdExists = (Func<ProductCode, Option<ProductCode>>)(prod => CheckProdExists(products, prod))
                          from publishedProduct in ExecuteWorkflowAsync(unvalidatedProducts, existingProd, checkProdExists).ToAsync()
-                         from _ in orderRepository.TrySaveproduct(publishedProduct)
+                         from _ in orderLineRepository.TrySaveproduct(publishedProduct)
                                           .ToEither(ex => new FailedCalculatedPrice(unvalidatedProducts.ProductList, ex) as ICarucior)
                          select publishedProduct;
          

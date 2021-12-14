@@ -9,8 +9,10 @@ using static Exemple.Domain.Models.Carucior;
 
 namespace Exemple.Domain.Repositories
 {
-    public interface IOrderRepository
+    public interface IOrderLineRepository
     {
-        TryAsync<List<ProductCode>> TryGetExistingCarucior(IEnumerable<string> procuts);
+        TryAsync<List<CalculatedCustomerPrice>> TryGetExistingProduct();
+
+        TryAsync<Unit> TrySaveproduct(PaidCarucior total);
     }
 }

@@ -14,15 +14,14 @@ namespace Exemple.Data
         {
            
         }
-
         public DbSet<Order> OrderHeader { get; set; }
-
         public DbSet<Product> Products { get; set; }
-
+        public DbSet<OrderLine> OrderLine { get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>().ToTable("Product").HasKey(s => s.ProductId);
-            modelBuilder.Entity<Order>().ToTable("Order").HasKey(s => s.OrderId);
+            modelBuilder.Entity<Order>().ToTable("OrderHeader").HasKey(s => s.OrderId);
+            modelBuilder.Entity<OrderLine>().ToTable("OrderLine").HasKey(s => s.OrderLineId);
         }
     }
 }
