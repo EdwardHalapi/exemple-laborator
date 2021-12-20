@@ -10,7 +10,7 @@ using static LanguageExt.Prelude;
 
 namespace Exemple.Data.Repositories
 {
-    class OrderLineRepository : IOrderLineRepository
+    public class OrderLineRepository : IOrderLineRepository
     {
          private readonly OrderContext dbContext;
 

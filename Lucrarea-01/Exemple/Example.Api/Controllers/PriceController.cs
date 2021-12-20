@@ -13,7 +13,7 @@ using Exemple.Domain.Models;
 namespace Example.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class PriceController : ControllerBase
     {
         private ILogger<PriceController> logger;

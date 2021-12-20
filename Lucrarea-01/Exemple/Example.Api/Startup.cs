@@ -31,9 +31,9 @@ namespace Example.Api
 
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IOrderLineRepository, OrderLineRepository>();
             services.AddTransient<PublishProductWorkflow>();
             services.AddSingleton<IEventSender, ServiceBusTopicEventSender>();
-
             services.AddAzureClients(builder =>
             {
                 builder.AddServiceBusClient(Configuration.GetConnectionString("ServiceBuss"));

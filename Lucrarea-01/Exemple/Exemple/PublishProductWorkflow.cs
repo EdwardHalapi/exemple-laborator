@@ -13,7 +13,7 @@ using static LanguageExt.Prelude;
 
 namespace Exemple.Domain
 {
-    public class PublishProductWorkflow
+    public class PublishProductWorkflow : IPublishProductWorkflow
     {
         private readonly IOrderRepository orderRepository;
         private readonly IProductRepository productRepository;
@@ -46,7 +46,7 @@ namespace Exemple.Domain
                     Right: publishedProds => new PaidCaruciorScucceededEvent(DateTime.Now)
                 );
         }
-        private async Task<Either<ICarucior, PaidCarucior>> ExecuteWorkflowAsync(UnvalidatedProduct unvalidatedProducts,
+        public async Task<Either<ICarucior, PaidCarucior>> ExecuteWorkflowAsync(UnvalidatedProduct unvalidatedProducts,
                                                                                           IEnumerable<CalculatedCustomerPrice> existingprods,
                                                                                           Func<ProductCode, Option<ProductCode>> checkProdExists)
         {
