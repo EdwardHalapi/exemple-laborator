@@ -6,7 +6,7 @@ namespace Exemple.Domain.Models
 {
     public record ProductCode
     {
-        public const string Pattern = "([A-Z])(a*)";
+        public const string Pattern = "(.*)";
         private static readonly Regex ValidPattern = new(Pattern);
 
         public string Value { get; }

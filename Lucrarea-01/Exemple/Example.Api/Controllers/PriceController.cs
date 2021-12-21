@@ -24,12 +24,11 @@ namespace Example.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts([FromServices] IOrderLineRepository orderLineRepository) =>
+        public async Task<IActionResult> GetAllOrderLines([FromServices] IOrderLineRepository orderLineRepository) =>
             await orderLineRepository.TryGetExistingProduct().Match(
                Succ: GetAllProductsHandleSuccess,
                Fail: GetAllProductsHandleError
             );
-
         private ObjectResult GetAllProductsHandleError(Exception ex)
         {
             logger.LogError(ex, ex.Message);
@@ -71,9 +70,9 @@ namespace Example.Api.Controllers
             );
         }
         private static UnvalidatedProductQuantity MapInputProductToUnvalidatedProduct(InputOrderLine product) => new UnvalidatedProductQuantity(
-            cod: product.OrderLineId,
+          cod: product.OrderLineId.ToString(),
             quantity: product.Quantity,
-            address: product.Price);
+            address: product.Price.ToString());
         private static UnvalidatedProductQuantity MapInputProductToValidateddProduct(InputProduct product) => new UnvalidatedProductQuantity(
              cod: product.Code,
             quantity: product.Stoc,

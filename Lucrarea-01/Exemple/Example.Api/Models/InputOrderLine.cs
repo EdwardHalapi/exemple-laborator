@@ -8,13 +8,13 @@ namespace Example.Api.Models
     public class InputOrderLine
     {
         [Required]
-        public string OrderLineId { get; set; }
+        public int OrderLineId { get; set; }
 
         [Required]
         [Range(1, 1000)]
         public decimal Quantity { get; set; }
 
         [Required]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
     }
 }

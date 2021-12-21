@@ -10,5 +10,6 @@ namespace Exemple.Domain.Models
     {
         public int ProductId { get; set; }
         public bool IsUpdated { get; set; }
+        public int OrderLineId { get; set; }
     }
 }

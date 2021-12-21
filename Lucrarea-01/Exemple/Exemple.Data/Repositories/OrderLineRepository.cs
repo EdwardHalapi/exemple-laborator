@@ -22,11 +22,11 @@ namespace Exemple.Data.Repositories
         public TryAsync<List<CalculatedCustomerPrice>> TryGetExistingProduct() => async () => (await (
                           from g in dbContext.OrderLine
                           join s in dbContext.Products on g.OrderLineId equals s.ProductId
-                          select new { s.Code, g.OrderLineId, g.Qunatity,g.Price})
+                          select new { s.Code, g.OrderLineId, g.Quantity,g.Price})
                           .AsNoTracking()
                           .ToListAsync())
                           .Select(result => new CalculatedCustomerPrice(ProductCode: new(result.Code),
-                                                                            Quantity: new(result.Qunatity),
+                                                                            Quantity: new(result.Quantity),
                                                                             price: new(result.Price))
                           {
                               ProductId = result.OrderLineId
@@ -34,22 +34,22 @@ namespace Exemple.Data.Repositories
 
         public TryAsync<Unit> TrySaveproduct(PaidCarucior total) => async () =>
         {
-            var products = (await dbContext.Products.ToListAsync()).ToLookup(product => product.Code);
+            var products = (await dbContext.OrderLine.ToListAsync()).ToLookup(product => product.OrderLineId);
             var newProducts = total.ProductList
                                     .Where(p => p.IsUpdated && p.ProductId == 0)
-                                    .Select(p => new Product()
+                                    .Select(p => new OrderLine()
                                     {
-                                        ProductId = products[p.ProductCode.Value].Single().ProductId,
-                                        Code = p.ProductCode.Value,
-                                        Stoc = p.Quantity.Value,
+                                        OrderLineId = products[p.OrderLineId].Single().OrderLineId,
+                                        Quantity = p.Quantity.Value,
+                                        Price = p.price.Value,
                                     });
             var updatedProducts = total.ProductList
                                     .Where(p => p.IsUpdated && p.ProductId >0)
-                                    .Select(p => new Product()
+                                    .Select(p => new OrderLine()
                                     {
-                                        ProductId = products[p.ProductCode.Value].Single().ProductId,
-                                        Code = p.ProductCode.Value,
-                                        Stoc = p.Quantity.Value,
+                                        OrderLineId = products[p.OrderLineId].Single().OrderLineId,
+                                        Quantity = p.Quantity.Value,
+                                        Price = p.price.Value,
                                     });
 
             dbContext.AddRange(newProducts);
